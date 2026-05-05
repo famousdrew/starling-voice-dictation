@@ -1,0 +1,7 @@
+.build/
+.swiftpm/
+Package.resolved
+Starling.app/
+.DS_Store
+xcuserdata/
+*.xcodeproj/
