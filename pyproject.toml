@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "starling"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "nemo_toolkit[asr]",
+    "sounddevice",
+    "numpy>=2.0",
+    "pynput",
+    "pystray",
+    "Pillow",
+    "PySide6",
+    "pyperclip",
+    "pywin32",
+]
+
+[project.scripts]
+starling = "starling.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["starling*"]
