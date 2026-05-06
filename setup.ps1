@@ -80,7 +80,19 @@ Write-Host "    (NeMo toolkit is another large download — ~1 GB. Please wait.)
 if ($LASTEXITCODE -ne 0) { Write-Fail "pip install failed — see output above." }
 Write-Ok "Starling installed"
 
-# ── 7. Done ───────────────────────────────────────────────────────────────────
+# ── 7. Seed corrections dictionary ───────────────────────────────────────────
+Write-Step "Installing corrections dictionary..."
+$corrDir  = "$env:APPDATA\Starling"
+$corrDest = "$corrDir\corrections.json"
+if (-not (Test-Path $corrDir)) { New-Item -ItemType Directory -Path $corrDir | Out-Null }
+if (Test-Path $corrDest) {
+    Write-Host "    corrections.json already exists, skipping." -ForegroundColor Yellow
+} else {
+    Copy-Item "corrections.json" $corrDest
+    Write-Ok "corrections.json installed to $corrDest"
+}
+
+# ── 8. Done ───────────────────────────────────────────────────────────────────
 Write-Host ""
 Write-Host "  Setup complete." -ForegroundColor Green
 Write-Host "  The Parakeet model (~2.5 GB) will download on first run." -ForegroundColor Cyan
