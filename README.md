@@ -1,6 +1,6 @@
 # Starling
 
-**Free, offline, push-to-talk dictation for Windows and macOS.** Hold a key, speak, release — your words appear instantly at the cursor in any app. No cloud. No subscription. No audio ever leaves your machine.
+**Free, offline, push-to-talk dictation for Windows and macOS.** Hold a key, speak, release. Your words appear instantly at the cursor in any app. No cloud. No subscription. No audio ever leaves your machine.
 
 [![Platform: Windows](https://img.shields.io/badge/platform-Windows%2010%2F11-blue?logo=windows)](#windows)
 [![Platform: macOS](https://img.shields.io/badge/platform-macOS%2014%2B-lightgrey?logo=apple)](#macos)
@@ -11,9 +11,9 @@
 
 ## Why Starling?
 
-Most dictation tools are cloud services — your voice goes to a server, gets transcribed, comes back. That means latency, a monthly bill, and someone else's infrastructure between you and your words.
+Most dictation tools are cloud services. Your voice goes to a server, gets transcribed, comes back. That means latency, a monthly bill, and someone else's infrastructure between you and your words.
 
-Starling runs entirely on your hardware. On a modern GPU it transcribes faster than real-time, with accuracy that rivals or beats cloud alternatives on English. It works in every app — your browser, your IDE, your email client, your Slack — because it pastes at the cursor just like you typed it.
+Starling runs entirely on your hardware. On a modern GPU it transcribes faster than real-time, with accuracy that rivals or beats cloud alternatives on English. It works in every app: your browser, your IDE, your email client, your Slack. It pastes at the cursor just like you typed it.
 
 **It's also completely free and open source.**
 
@@ -21,14 +21,14 @@ Starling runs entirely on your hardware. On a modern GPU it transcribes faster t
 
 ## Features
 
-- **Hold-to-talk** — hold the hotkey, speak naturally, release to paste. Works in any focused window.
-- **Hands-free mode** — double-tap the hotkey to lock recording on. Any key ends and transcribes; Escape cancels cleanly.
-- **Streaming transcription** — audio is split at natural silences and processed in the background while you're still talking. Release-to-paste latency stays tight even on long sessions.
-- **Live level meter** — tray/menubar icon animates with your mic input so you always know when you're being heard.
-- **Stats window** — words today, last 7 days, and lifetime; average speaking WPM; 30-day chart; recent session history; paste playground.
-- **Custom vocabulary** — teach Starling your product names, acronyms, and jargon via a simple JSON file. No retraining required.
-- **Launch at login** — one toggle and it's always ready in the background.
-- **Fully offline** — transcription runs locally. Audio never leaves your machine.
+- **Hold-to-talk:** hold the hotkey, speak naturally, release to paste. Works in any focused window.
+- **Hands-free mode:** double-tap the hotkey to lock recording on. Any key ends and transcribes; Escape cancels cleanly.
+- **Streaming transcription:** audio is split at natural silences and processed in the background while you're still talking. Release-to-paste latency stays tight even on long sessions.
+- **Live level meter:** the tray/menubar icon animates with your mic input so you always know when you're being heard.
+- **Stats window:** words today, last 7 days, and lifetime; average speaking WPM; 30-day chart; recent session history; paste playground.
+- **Custom vocabulary:** teach Starling your product names, acronyms, and jargon via a simple JSON file. No retraining required.
+- **Launch at login:** one toggle and it's always ready in the background.
+- **Fully offline:** transcription runs locally. Audio never leaves your machine.
 
 ---
 
@@ -49,9 +49,9 @@ Starling runs entirely on your hardware. On a modern GPU it transcribes faster t
 ### Requirements
 
 - Windows 10 or 11
-- **Python 3.12** — specifically 3.12; versions 3.13 and 3.14 are blocked by a NeMo dependency
-- NVIDIA GPU with CUDA 12.8+ (strongly recommended — CPU mode works but is too slow for real-time use)
-- ~6 GB free disk space for dependencies and the Parakeet model
+- **Python 3.12** specifically. Versions 3.13 and 3.14 are blocked by a NeMo dependency.
+- NVIDIA GPU with CUDA 12.8+ strongly recommended. CPU mode works but is too slow for real-time use.
+- ~6 GB free disk space for dependencies and the Parakeet model.
 
 ### Quick start
 
@@ -62,7 +62,7 @@ cd starling
 .\run.ps1
 ```
 
-`setup.ps1` handles everything: creates a Python 3.12 virtual environment, installs PyTorch with CUDA support in the correct order, and installs all dependencies. Run it once. After that, use `run.ps1` to launch — or enable **Launch at Login** in the Settings tab to have it start automatically.
+`setup.ps1` handles everything: creates a Python 3.12 virtual environment, installs PyTorch with CUDA support in the correct order, and installs all dependencies. Run it once. After that, use `run.ps1` to launch, or enable **Launch at Login** in the Settings tab to have it start automatically.
 
 The [Parakeet-TDT v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3) model (~2.5 GB) downloads automatically on first run and is cached locally.
 
@@ -75,8 +75,8 @@ The [Parakeet-TDT v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3) model 
 
 | Gesture | Action |
 |---|---|
-| Hold **Right Ctrl** | Record while held — release to transcribe and paste |
-| **Double-tap** Right Ctrl | Hands-free mode — keeps recording until you stop it |
+| Hold **Right Ctrl** | Record while held, then release to transcribe and paste |
+| **Double-tap** Right Ctrl | Hands-free mode, keeps recording until you stop it |
 | Right Ctrl *(in hands-free)* | Stop, transcribe, and paste |
 | Any other key *(in hands-free)* | Stop, transcribe, paste, then send the key |
 | **Escape** *(in hands-free)* | Cancel without pasting |
@@ -95,11 +95,11 @@ The key is what the model hears (lowercase), the value is what gets pasted:
 {
   "you attend": "uAttend",
   "work well": "Workwell",
-  "my product": "MyProduct™"
+  "my product": "MyProduct"
 }
 ```
 
-Changes take effect immediately — no restart needed.
+Changes take effect immediately with no restart needed.
 
 ### Full setup guide
 
@@ -139,13 +139,13 @@ macOS will prompt for three permissions on first use:
 | Input Monitoring | Global hotkey via `CGEventTap` |
 | Accessibility | Synthesizing `Cmd+V` to paste |
 
-All three are required. Grant them in **System Settings → Privacy & Security** if the prompts don't appear automatically.
+All three are required. Grant them in **System Settings > Privacy & Security** if the prompts don't appear automatically.
 
 ### Usage
 
 | Gesture | Action |
 |---|---|
-| Hold **Right Option** | Record — release to transcribe and paste |
+| Hold **Right Option** | Record, then release to transcribe and paste |
 | Double-tap Right Option | Hands-free mode |
 | Right Option *(in hands-free)* | Stop and paste |
 | Escape *(in hands-free)* | Cancel |
@@ -154,9 +154,9 @@ All three are required. Grant them in **System Settings → Privacy & Security**
 
 ## How it works
 
-Starling buffers microphone audio at 16 kHz mono Float32. While you're recording, a background thread scans for silence boundaries (peak amplitude below 0.012 over 400ms) to split audio into 8–25 second chunks, which are transcribed as they complete. When you release the hotkey, any remaining audio is drained and all partial transcripts are joined. The result is saved to clipboard, `Ctrl+V` (or `Cmd+V`) is synthesised, and your previous clipboard is restored 150ms later.
+Starling buffers microphone audio at 16 kHz mono Float32. While you're recording, a background thread scans for silence boundaries (peak amplitude below 0.012 over 400ms) to split audio into 8-25 second chunks, which are transcribed as they complete. When you release the hotkey, any remaining audio is drained and all partial transcripts are joined. The result is saved to clipboard, `Ctrl+V` (or `Cmd+V`) is synthesised, and your previous clipboard is restored 150ms later.
 
-This chunked streaming approach means a 60-second dictation doesn't make you wait 60 seconds — most of the transcript is ready before you even release the key.
+This chunked streaming approach means a 60-second dictation doesn't make you wait 60 seconds. Most of the transcript is ready before you even release the key.
 
 ---
 
