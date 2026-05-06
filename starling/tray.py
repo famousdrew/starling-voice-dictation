@@ -26,17 +26,17 @@ def _draw_icon(state: TrayState, level: float) -> Image.Image:
     draw = ImageDraw.Draw(img)
 
     if state == TrayState.IDLE:
-        # Filled circle background + bold mic
         cx, cy = ICON_SIZE // 2, ICON_SIZE // 2
         r = 30
-        draw.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(50, 50, 55, 230))
-        # mic capsule (filled)
-        draw.rounded_rectangle([cx - 9, cy - 18, cx + 9, cy + 4], radius=9, fill=(200, 200, 200))
-        # stand arc
-        draw.arc([cx - 15, cy - 6, cx + 15, cy + 16], 0, 180, fill=(200, 200, 200), width=3)
-        # stem + base
-        draw.line([cx, cy + 16, cx, cy + 23], fill=(200, 200, 200), width=3)
-        draw.line([cx - 8, cy + 23, cx + 8, cy + 23], fill=(200, 200, 200), width=3)
+        # Green filled circle
+        draw.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(34, 139, 80, 255))
+        # White mic capsule
+        draw.rounded_rectangle([cx - 9, cy - 18, cx + 9, cy + 4], radius=9, fill=(255, 255, 255))
+        # White stand arc
+        draw.arc([cx - 15, cy - 6, cx + 15, cy + 16], 0, 180, fill=(255, 255, 255), width=3)
+        # White stem + base
+        draw.line([cx, cy + 16, cx, cy + 23], fill=(255, 255, 255), width=3)
+        draw.line([cx - 8, cy + 23, cx + 8, cy + 23], fill=(255, 255, 255), width=3)
         return img
 
     color = (255, 60, 60) if state == TrayState.HANDS_FREE else (80, 220, 120)
