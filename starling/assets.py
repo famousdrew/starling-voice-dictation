@@ -17,15 +17,18 @@ def app_icon(size: int) -> Image.Image:
     """
     src = Image.open(_ASSETS / "icon.png").convert("RGBA")
 
-    # Crop to the bounding box of the circle (strip solid-black rows/columns)
-    # by treating pure-black pixels as transparent for the crop step only.
+    # Crop to the bounding box of the circle by treating the background colour
+    # (sampled from the top-left corner) as transparent.  Works for any
+    # background -- black, cream, white, etc.
     tmp = src.copy()
     px = tmp.load()
     w, h = tmp.size
+    bg_r, bg_g, bg_b, _ = px[0, 0]
+    TOL = 30
     for y in range(h):
         for x in range(w):
             r, g, b, a = px[x, y]
-            if r < 20 and g < 20 and b < 20:
+            if abs(r - bg_r) < TOL and abs(g - bg_g) < TOL and abs(b - bg_b) < TOL:
                 px[x, y] = (0, 0, 0, 0)
     bbox = tmp.getbbox()
     if bbox:
