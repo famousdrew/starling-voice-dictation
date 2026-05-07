@@ -10,6 +10,7 @@ from PySide6.QtWidgets import (
     QApplication,
     QFrame,
     QHBoxLayout,
+    QHeaderView,
     QLabel,
     QLineEdit,
     QMainWindow,
@@ -17,6 +18,8 @@ from PySide6.QtWidgets import (
     QScrollArea,
     QSizePolicy,
     QTabWidget,
+    QTableWidget,
+    QTableWidgetItem,
     QTextEdit,
     QVBoxLayout,
     QWidget,
@@ -64,6 +67,16 @@ QPushButton:disabled {{ background: {SURFACE}; color: {TEXT_DIM}; }}
 QTextEdit {{
     background: {SURFACE}; border: 1px solid {BORDER}; border-radius: 6px;
     color: {TEXT}; padding: 8px; font-size: 13px;
+}}
+QTableWidget {{
+    background: {SURFACE}; border: 1px solid {BORDER}; border-radius: 6px;
+    color: {TEXT}; font-size: 13px; gridline-color: {BORDER};
+}}
+QTableWidget::item {{ padding: 6px 10px; border: none; }}
+QTableWidget::item:selected {{ background: {ACCENT_DIM}; color: {ACCENT}; }}
+QHeaderView::section {{
+    background: {BG}; color: {TEXT_DIM}; font-size: 11px; letter-spacing: 1px;
+    padding: 6px 10px; border: none; border-bottom: 1px solid {BORDER};
 }}
 """
 
@@ -278,6 +291,91 @@ class PlaygroundTab(QWidget):
         self._output.append(text)
 
 
+# ── vocabulary tab ───────────────────────────────────────────────────────────
+
+class VocabularyTab(QWidget):
+    def __init__(self, parent=None) -> None:
+        super().__init__(parent)
+        root = QVBoxLayout(self)
+        root.setContentsMargins(12, 12, 12, 12)
+        root.setSpacing(10)
+
+        root.addWidget(_label(
+            "Teach Starling how to spell product names and jargon. "
+            "The left column is what the model hears; the right column is what gets pasted.",
+            "session-meta",
+        ))
+
+        self._table = QTableWidget(0, 2)
+        self._table.setHorizontalHeaderLabels(["HEARD AS", "PASTES AS"])
+        self._table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+        self._table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        self._table.verticalHeader().setVisible(False)
+        self._table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self._table.itemChanged.connect(self._on_change)
+        root.addWidget(self._table)
+
+        btn_row = QHBoxLayout()
+        add_btn = QPushButton("Add correction")
+        add_btn.clicked.connect(self._add_row)
+        del_btn = QPushButton("Remove selected")
+        del_btn.setStyleSheet(f"background: #3a1a1a; color: {RED};")
+        del_btn.clicked.connect(self._remove_selected)
+        btn_row.addWidget(add_btn)
+        btn_row.addWidget(del_btn)
+        btn_row.addStretch()
+        root.addLayout(btn_row)
+
+        self._loading = False
+        self._load()
+
+    def _load(self) -> None:
+        from . import corrections as corr
+        corr.reload()
+        self._loading = True
+        self._table.setRowCount(0)
+        for heard, pastes_as in corr._get():
+            self._insert_row(heard, pastes_as)
+        self._loading = False
+
+    def _insert_row(self, heard: str = "", pastes_as: str = "") -> None:
+        row = self._table.rowCount()
+        self._table.insertRow(row)
+        self._table.setItem(row, 0, QTableWidgetItem(heard))
+        self._table.setItem(row, 1, QTableWidgetItem(pastes_as))
+
+    def _add_row(self) -> None:
+        self._insert_row()
+        row = self._table.rowCount() - 1
+        self._table.editItem(self._table.item(row, 0))
+
+    def _remove_selected(self) -> None:
+        rows = sorted({idx.row() for idx in self._table.selectedIndexes()}, reverse=True)
+        for row in rows:
+            self._table.removeRow(row)
+        self._save()
+
+    def _on_change(self, item: QTableWidgetItem) -> None:
+        if not self._loading:
+            self._save()
+
+    def _save(self) -> None:
+        import json, os
+        from pathlib import Path
+        from . import corrections as corr
+        data: dict[str, str] = {}
+        for row in range(self._table.rowCount()):
+            heard_item = self._table.item(row, 0)
+            paste_item = self._table.item(row, 1)
+            heard = (heard_item.text().strip().lower() if heard_item else "")
+            pastes_as = (paste_item.text().strip() if paste_item else "")
+            if heard and pastes_as:
+                data[heard] = pastes_as
+        path = Path(os.environ["APPDATA"]) / "Starling" / "corrections.json"
+        path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+        corr.reload()
+
+
 # ── settings tab ─────────────────────────────────────────────────────────────
 
 class SettingsTab(QWidget):
@@ -297,6 +395,14 @@ class SettingsTab(QWidget):
         self._login_btn.clicked.connect(self._toggle_login)
         lay.addWidget(self._login_btn)
         root.addWidget(frame)
+
+        quit_frame, quit_lay = _card()
+        quit_lay.addWidget(_label("Quit Starling"))
+        quit_btn = QPushButton("Quit")
+        quit_btn.setStyleSheet(f"background: #3a1a1a; color: {RED};")
+        quit_btn.clicked.connect(self._quit)
+        quit_lay.addWidget(quit_btn)
+        root.addWidget(quit_frame)
         root.addStretch()
 
     def _toggle_login(self) -> None:
@@ -307,6 +413,9 @@ class SettingsTab(QWidget):
         else:
             login_item.enable()
             self._login_btn.setText("Disable launch at login")
+
+    def _quit(self) -> None:
+        QApplication.instance().quit()
 
 
 # ── main window ───────────────────────────────────────────────────────────────
@@ -322,11 +431,13 @@ class StatsWindow(QMainWindow):
         self._overview = OverviewTab(stats)
         self._sessions = SessionsTab(stats)
         self._playground = PlaygroundTab()
+        self._vocabulary = VocabularyTab()
         self._settings = SettingsTab()
 
         tabs.addTab(self._overview, "Overview")
         tabs.addTab(self._sessions, "Sessions")
         tabs.addTab(self._playground, "Playground")
+        tabs.addTab(self._vocabulary, "Vocabulary")
         tabs.addTab(self._settings, "Settings")
 
         tabs.currentChanged.connect(self._on_tab_changed)
@@ -338,6 +449,8 @@ class StatsWindow(QMainWindow):
             self._overview.refresh()
         elif idx == 1:
             self._sessions.refresh()
+        elif idx == 3:
+            self._vocabulary._load()
 
     def append_transcript(self, text: str) -> None:
         self._playground.append_transcript(text)

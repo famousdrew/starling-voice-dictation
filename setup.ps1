@@ -22,7 +22,7 @@ if (-not $py) {
     Write-Host "  Python 3.12 not found. Install it from:" -ForegroundColor Yellow
     Write-Host "    winget install Python.Python.3.12" -ForegroundColor Yellow
     Write-Host "  or download from https://python.org/downloads" -ForegroundColor Yellow
-    Write-Fail "Python 3.12 required (3.13/3.14 will not work — NeMo dependency blocks them)"
+    Write-Fail "Python 3.12 required (3.13/3.14 will not work - NeMo dependency blocks them)"
 }
 
 # If using py launcher, pin to 3.12
@@ -53,7 +53,7 @@ Write-Ok "numpy installed"
 
 # ── 5. Install PyTorch with CUDA ──────────────────────────────────────────────
 Write-Step "Installing PyTorch with CUDA support..."
-Write-Host "    (This is a large download — ~2.5 GB. Please wait.)" -ForegroundColor Yellow
+Write-Host "    (This is a large download, ~2.5 GB. Please wait.)" -ForegroundColor Yellow
 & $pip install --quiet torch torchaudio --index-url https://download.pytorch.org/whl/cu128
 if ($LASTEXITCODE -ne 0) {
     Write-Host "    cu128 not available, trying cu126..." -ForegroundColor Yellow
@@ -70,14 +70,14 @@ if ($cudaOk -ne "True") {
     Write-Host "    Transcription will work but will be much slower without a GPU." -ForegroundColor Yellow
 } else {
     $gpu = & $python -c "import torch; print(torch.cuda.get_device_name(0))" 2>$null
-    Write-Ok "CUDA available — GPU: $gpu"
+    Write-Ok "CUDA available - GPU: $gpu"
 }
 
 # ── 6. Install Starling + remaining deps ──────────────────────────────────────
 Write-Step "Installing Starling and remaining dependencies..."
-Write-Host "    (NeMo toolkit is another large download — ~1 GB. Please wait.)" -ForegroundColor Yellow
+Write-Host "    (NeMo toolkit is another large download, ~1 GB. Please wait.)" -ForegroundColor Yellow
 & $pip install --quiet -e .
-if ($LASTEXITCODE -ne 0) { Write-Fail "pip install failed — see output above." }
+if ($LASTEXITCODE -ne 0) { Write-Fail "pip install failed - see output above." }
 Write-Ok "Starling installed"
 
 # ── 7. Seed corrections dictionary ───────────────────────────────────────────
