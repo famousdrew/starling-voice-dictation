@@ -100,7 +100,7 @@ def _finalize(
     if not text:
         return
     audio_seconds = samples.size / 16_000
-    paste(text)
+    paste(text + " ")
     stats.record(audio_seconds, text)
     stats_ui.notify_transcript(text)
 
