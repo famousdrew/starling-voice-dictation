@@ -15,11 +15,16 @@ struct StarlingApp {
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem!
-    private var launchAtLoginItem: NSMenuItem!
     private let controller = DictationController()
     private let stats = SessionStats()
     private let corrections = Corrections()
-    private lazy var statsWindow = StatsWindowController(stats: stats)
+    private let liveTranscripts = LiveTranscripts()
+    private lazy var statsWindow = StatsWindowController(
+        stats: stats,
+        corrections: corrections,
+        liveTranscripts: liveTranscripts
+    )
+    private let splash = SplashWindowController()
 
     private var state: DictationState = .idle
     private var displayedLevel: Float = 0
@@ -34,19 +39,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(NSMenuItem(title: "Double-tap Right Option for Hands-Free", action: nil, keyEquivalent: ""))
         menu.addItem(.separator())
 
-        let showStatsItem = NSMenuItem(title: "Show Stats…", action: #selector(showStats), keyEquivalent: "")
-        showStatsItem.target = self
-        menu.addItem(showStatsItem)
-        menu.addItem(.separator())
+        let statsItem = NSMenuItem(title: "Stats", action: #selector(showStats), keyEquivalent: "")
+        statsItem.target = self
+        menu.addItem(statsItem)
 
-        launchAtLoginItem = NSMenuItem(
-            title: "Launch at Login",
-            action: #selector(toggleLaunchAtLogin),
-            keyEquivalent: ""
-        )
-        launchAtLoginItem.target = self
-        launchAtLoginItem.state = LoginItem.isEnabled ? .on : .off
-        menu.addItem(launchAtLoginItem)
+        let dictItem = NSMenuItem(title: "Dictionary", action: #selector(showDictionary), keyEquivalent: "")
+        dictItem.target = self
+        menu.addItem(dictItem)
+
+        let settingsItem = NSMenuItem(title: "Settings", action: #selector(showSettings), keyEquivalent: ",")
+        settingsItem.target = self
+        menu.addItem(settingsItem)
 
         menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q"))
@@ -62,6 +65,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         controller.onSession = { [weak self] audioSeconds, transcript in
             self?.stats.record(audioSeconds: audioSeconds, transcript: transcript)
+            self?.liveTranscripts.append(transcript)
         }
         controller.onLevel = { [weak self] level in
             // Asymmetric smoothing: snap up fast, decay slow — same trick
@@ -73,6 +77,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self.displayedLevel = self.displayedLevel * 0.7 + level * 0.3
             }
         }
+        controller.onStatus = { [weak self] message in
+            self?.splash.setStatus(message)
+        }
+        controller.onReady = { [weak self] in
+            self?.splash.finish()
+        }
 
         // Repaint at 20Hz while recording so smoothing decay is visible even
         // during silence.
@@ -83,6 +93,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
 
+        splash.show()
         controller.start()
     }
 
@@ -102,15 +113,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    @objc private func showStats() {
-        statsWindow.show()
-    }
-
-    @objc private func toggleLaunchAtLogin() {
-        let newValue = !LoginItem.isEnabled
-        LoginItem.setEnabled(newValue)
-        launchAtLoginItem.state = LoginItem.isEnabled ? .on : .off
-    }
-
+    @objc private func showStats() { statsWindow.show(tab: .overview) }
+    @objc private func showDictionary() { statsWindow.show(tab: .vocabulary) }
+    @objc private func showSettings() { statsWindow.show(tab: .settings) }
     @objc private func quit() { NSApp.terminate(nil) }
 }
